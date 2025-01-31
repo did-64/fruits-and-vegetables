@@ -6,7 +6,7 @@ use App\Repository\VegetableRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VegetableRepository::class)]
-class Vegetable
+class Vegetable extends FoodItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
