@@ -7,7 +7,7 @@ use App\Entity\FoodItem;
 interface FoodCollectionInterface
 {
     public function add(FoodItem $item): void;
-    public function remove(string $name): void;
+    public function remove(int $id): void;
     public function list(): array;
 
 }
