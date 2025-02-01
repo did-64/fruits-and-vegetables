@@ -35,9 +35,17 @@ class VegetableCollection implements FoodCollectionInterface
         }
     }
 
-    public function list(): array
+    public function list(?string $query): array
     {
-        return $this->vegetableRepository->findAll();
+        if (!$query) {
+            return $this->vegetableRepository->findAll();
+        }
+        return $this->vegetableRepository->createQueryBuilder('v')
+            ->where('v.name LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->getQuery()
+            ->getResult();
+
     }
 
 

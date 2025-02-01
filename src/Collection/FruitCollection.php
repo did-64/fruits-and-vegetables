@@ -33,9 +33,17 @@ class FruitCollection implements FoodCollectionInterface
         }
     }
 
-    public function list(): array
+    public function list(?string $query): array
     {
-        return $this->fruitRepository->findAll();
+        if (!$query) {
+            return $this->fruitRepository->findAll();
+        }else{
+            return $this->fruitRepository->createQueryBuilder('f')
+                ->where('f.name LIKE :query')
+                ->setParameter('query', '%' . $query . '%')
+                ->getQuery()
+                ->getResult();
+        }
     }
 
 }
