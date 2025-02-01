@@ -40,7 +40,7 @@ class ApiFoodController extends AbstractController
         }
         return new JsonResponse([
             'success' => true
-        ], Response::HTTP_OK);
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/api/list', name: 'api_get_items', methods: ['GET'])]
@@ -67,5 +67,33 @@ class ApiFoodController extends AbstractController
         return new JsonResponse(
             $jsonlist
         , Response::HTTP_OK, [],true);
+    }
+
+
+    #[Route('/api/create', name: 'api_add_items', methods: ['POST'])]
+    public function addItems(Request $request): JsonResponse
+    {
+        try {
+            $content = $request->getContent();
+
+            if (!$content || !json_decode($content)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Invalid JSON format'
+                ], RESPONSE::HTTP_BAD_REQUEST);
+            }
+
+            $storageService = new StorageService($this->foodStorage);
+            $storageService->setRequest($content);
+            $storageService->submitRequest();
+        }catch (\Exception $exception){
+            return new JsonResponse([
+                'success' => false,
+                'message' => $exception->getMessage()
+            ], RESPONSE::HTTP_BAD_REQUEST);
+        }
+        return new JsonResponse([
+            'success' => true
+        ], Response::HTTP_CREATED);
     }
 }
