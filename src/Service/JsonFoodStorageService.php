@@ -22,10 +22,11 @@ class JsonFoodStorageService implements JsonStorageInterface
     {
         $data = json_decode($jsonData);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE || empty($data)) {
             throw new \InvalidArgumentException("Invalid JSON data");
         }
 
+        if(!is_array($data)) { $data = [$data]; }
         foreach ($data as $item) {
             $entity = null;
             if($item->type === "fruit"){
