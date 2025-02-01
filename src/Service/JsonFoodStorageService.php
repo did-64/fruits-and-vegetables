@@ -38,9 +38,9 @@ class JsonFoodStorageService implements JsonStorageInterface
                 $entity->setQuantity($quantity);
                 $entity->setName($item->name);
                 if ($item instanceof Fruit) {
-                    $this->fruitCollection->add($item);
+                    $this->fruitCollection->add($entity);
                 } else {
-                    $this->vegetableCollection->add($item);
+                    $this->vegetableCollection->add($entity);
                 }
             }else{
                 throw new \InvalidArgumentException("Invalid Type of item");
