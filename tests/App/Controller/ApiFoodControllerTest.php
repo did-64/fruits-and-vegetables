@@ -74,4 +74,65 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertFalse($data['success']);
         $this->assertStringContainsString('Invalid Type of item', $data['message']);
     }
+
+    public function testAddItemsWithValidJson()
+    {
+        $client = static::createClient();
+
+
+        $validJson = json_encode([
+            'name' => 'Apple',
+            'type' => 'fruit',
+            'unit'=> 'kg',
+            'quantity' => 10
+        ]);
+
+
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $validJson);
+        $response = $client->getResponse();
+
+
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['success']);
+    }
+
+    public function testAddItemsWithInvalidJson()
+    {
+        $client = static::createClient();
+
+
+        $invalidJson = '{"name": "Apple", "type": "fruit", "quantity": 10';
+
+
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $invalidJson);
+        $response = $client->getResponse();
+
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertFalse($data['success']);
+        $this->assertEquals('Invalid JSON format', $data['error']);
+    }
+
+    public function testAddItemsWithEmptyContent()
+    {
+        $client = static::createClient();
+
+
+        $client->request('POST', '/api/create');
+        $response = $client->getResponse();
+
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertFalse($data['success']);
+        $this->assertEquals('Invalid JSON format', $data['error']);
+    }
 }
