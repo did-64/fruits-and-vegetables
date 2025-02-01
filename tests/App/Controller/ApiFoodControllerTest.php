@@ -27,7 +27,7 @@ class ApiFoodControllerTest extends WebTestCase
         $client = static::createClient();
 
 
-        $client->request('GET', '/api/list?type=fruit');
+        $client->request('GET', '/api/list/fruit');
         $response = $client->getResponse();
 
 
@@ -46,7 +46,7 @@ class ApiFoodControllerTest extends WebTestCase
         $client = static::createClient();
 
 
-        $client->request('GET', '/api/list?type=invalid');
+        $client->request('GET', '/api/list/invalid');
         $response = $client->getResponse();
 
 
