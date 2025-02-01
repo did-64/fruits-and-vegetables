@@ -6,9 +6,13 @@ class StorageService
 {
     protected string $request = '';
 
+
     public function __construct(
-        string $request
+        private JsonStorageInterface $jsonStorage
     )
+    {}
+
+    public function setRequest(string $request): void
     {
         $this->request = $request;
     }
@@ -16,5 +20,10 @@ class StorageService
     public function getRequest(): string
     {
         return $this->request;
+    }
+
+    public function submitRequest(): void
+    {
+        $this->jsonStorage->loadData($this->request);
     }
 }
