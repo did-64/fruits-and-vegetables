@@ -44,12 +44,13 @@ class ApiFoodController extends AbstractController
     }
 
     #[Route('/api/list/{type}', name: 'api_get_items', methods: ['GET'])]
-    public function getItems(string $type, SerializerInterface $serializer): JsonResponse
+    public function getItems(string $type, Request $request, SerializerInterface $serializer): JsonResponse
     {
         try {
+            $filter = $request->query->get('filter') ?: null;
             $list =  match ($type) {
-                'fruit' => $this->fruitCollection->list(),
-                'vegetable' => $this->vegetableCollection->list(),
+                'fruit' => $this->fruitCollection->list($filter),
+                'vegetable' => $this->vegetableCollection->list($filter),
                 default => null,
             };
             if($list === null) {
