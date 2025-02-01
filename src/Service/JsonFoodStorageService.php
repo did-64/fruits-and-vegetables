@@ -37,7 +37,7 @@ class JsonFoodStorageService implements JsonStorageInterface
                 $quantity = $this->convertToGrams($item->quantity, $item->unit);
                 $entity->setQuantity($quantity);
                 $entity->setName($item->name);
-                if ($item instanceof Fruit) {
+                if ($entity instanceof Fruit) {
                     $this->fruitCollection->add($entity);
                 } else {
                     $this->vegetableCollection->add($entity);
