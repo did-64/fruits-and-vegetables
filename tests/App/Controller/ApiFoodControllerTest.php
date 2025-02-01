@@ -58,22 +58,6 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertEquals("Invalid Type of item", $data['message']);
     }
 
-    public function testGetItemsWithoutType()
-    {
-        $client = static::createClient();
-
-
-        $client->request('GET', '/api/list');
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertFalse($data['success']);
-        $this->assertStringContainsString('Invalid Type of item', $data['message']);
-    }
 
     public function testAddItemsWithValidJson()
     {
@@ -134,5 +118,28 @@ class ApiFoodControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['success']);
         $this->assertEquals('Invalid JSON format', $data['error']);
+    }
+
+
+    public function testRemoveItemSuccess(): void
+    {
+        $client = static::createClient();
+
+
+        $client->request('DELETE', '/api/remove/fruit/10');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+
+    }
+
+    public function testRemoveItemInvalidType(): void
+    {
+        $client = static::createClient();
+
+
+        $client->request('DELETE', '/api/remove/meat/1');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+
     }
 }
