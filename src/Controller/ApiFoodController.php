@@ -44,7 +44,7 @@ class ApiFoodController extends AbstractController
     }
 
     #[Route('/api/list/{type}', name: 'api_get_items', methods: ['GET'])]
-    public function getItems(string $type, Request $request , SerializerInterface $serializer): JsonResponse
+    public function getItems(string $type, SerializerInterface $serializer): JsonResponse
     {
         try {
             $list =  match ($type) {
@@ -94,5 +94,30 @@ class ApiFoodController extends AbstractController
         return new JsonResponse([
             'success' => true
         ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/remove/{type}/{id}', name: 'api_remove_item', methods: ['DELETE'])]
+    public function removeItem(int $id, string $type): JsonResponse
+    {
+        try {
+            if (!in_array($type, ['fruit', 'vegetable'])) {
+                throw new \InvalidArgumentException("Invalid Type of item");
+            }
+
+            match ($type) {
+                'fruit' => $this->fruitCollection->remove($id),
+                'vegetable' => $this->vegetableCollection->remove($id),
+                default => null,
+            };
+
+        }catch (\Exception $exception){
+            return new JsonResponse([
+                'success' => false,
+                'message' => $exception->getMessage()
+            ], RESPONSE::HTTP_BAD_REQUEST);
+        }
+        return new JsonResponse([
+            'success' => true
+        ], Response::HTTP_NO_CONTENT);
     }
 }
