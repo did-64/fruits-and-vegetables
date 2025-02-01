@@ -58,6 +58,19 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertEquals("Invalid Type of item", $data['message']);
     }
 
+    public function testGetItemsWithFilter(): void
+    {
+        $client = static::createClient();
+
+        $client->request('GET', '/api/list/fruit?filter=red');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertJson($client->getResponse()->getContent());
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($responseData);
+    }
+
 
     public function testAddItemsWithValidJson()
     {
