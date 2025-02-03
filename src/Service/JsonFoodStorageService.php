@@ -35,6 +35,10 @@ class JsonFoodStorageService implements JsonStorageInterface
                 $entity = new Vegetable();
             }
             if($entity instanceof FoodItem){
+                if(!is_float($item->quantity) && !is_int($item->quantity))
+                    throw new \InvalidArgumentException("The value must be a number.");
+                if(!is_string($item->name) || empty($item->name))
+                    throw new \InvalidArgumentException("The value must filled and type of string.");
                 $quantity = $this->convertToGrams($item->quantity, $item->unit);
                 $entity->setQuantity($quantity);
                 $entity->setName($item->name);
