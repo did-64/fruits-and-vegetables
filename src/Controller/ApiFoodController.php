@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Collection\FruitCollection;
 use App\Collection\VegetableCollection;
-use App\Service\JsonFoodStorageService;
 use App\Service\StorageService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +17,7 @@ class ApiFoodController extends AbstractController
 {
 
     public function __construct(
-        private JsonFoodStorageService $foodStorage,
+        private StorageService $storageService,
         private FruitCollection $fruitCollection,
         private VegetableCollection $vegetableCollection
     ) {}
@@ -29,9 +28,8 @@ class ApiFoodController extends AbstractController
         try {
             $jsonPath = $kernel->getProjectDir() . '/request.json';
             $jsonRequest = file_get_contents($jsonPath);
-            $storageService = new StorageService($this->foodStorage);
-            $storageService->setRequest($jsonRequest);
-            $storageService->submitRequest();
+            $this->storageService->setRequest($jsonRequest);
+            $this->storageService->submitRequest();
         }catch (\Exception $exception){
             return new JsonResponse([
                 'success' => false,
@@ -83,9 +81,8 @@ class ApiFoodController extends AbstractController
                 ], RESPONSE::HTTP_BAD_REQUEST);
             }
 
-            $storageService = new StorageService($this->foodStorage);
-            $storageService->setRequest($content);
-            $storageService->submitRequest();
+            $this->storageService->setRequest($content);
+            $this->storageService->submitRequest();
         }catch (\Exception $exception){
             return new JsonResponse([
                 'success' => false,
