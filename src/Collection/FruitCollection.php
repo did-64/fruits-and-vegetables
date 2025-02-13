@@ -4,6 +4,7 @@ namespace App\Collection;
 
 use App\Entity\FoodItem;
 use App\Entity\Fruit;
+use App\Exception\CustomHttpException;
 use App\Repository\FruitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,7 +18,7 @@ class FruitCollection implements FoodCollectionInterface
     public function add(FoodItem $item): void
     {
         if (!$item instanceof Fruit) {
-            throw new \InvalidArgumentException('Item must be a Fruit');
+            throw new CustomHttpException('Item must be a Fruit');
         }
 
         $this->entityManager->persist($item);

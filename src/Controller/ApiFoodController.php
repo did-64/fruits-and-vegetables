@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Collection\FruitCollection;
 use App\Collection\VegetableCollection;
+use App\Exception\CustomHttpException;
 use App\Service\StorageService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -52,7 +53,7 @@ class ApiFoodController extends AbstractController
                 default => null,
             };
             if($list === null) {
-                throw new \InvalidArgumentException("Invalid Type of item");
+                throw new CustomHttpException("Invalid Type of item");
             }
             $jsonlist = $serializer->serialize($list, 'json');
 
@@ -99,7 +100,7 @@ class ApiFoodController extends AbstractController
     {
         try {
             if (!in_array($type, ['fruit', 'vegetable'])) {
-                throw new \InvalidArgumentException("Invalid Type of item");
+                throw new CustomHttpException("Invalid Type of item");
             }
 
             match ($type) {

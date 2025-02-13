@@ -2,9 +2,9 @@
 
 namespace App\Collection;
 
-use App\Collection\FoodCollectionInterface;
 use App\Entity\FoodItem;
 use App\Entity\Vegetable;
+use App\Exception\CustomHttpException;
 use App\Repository\VegetableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -19,7 +19,7 @@ class VegetableCollection implements FoodCollectionInterface
     public function add(FoodItem $item): void
     {
         if (!$item instanceof Vegetable) {
-            throw new \InvalidArgumentException('Item must be a Vegetable');
+            throw new CustomHttpException('Item must be a Vegetable');
         }
 
         $this->entityManager->persist($item);

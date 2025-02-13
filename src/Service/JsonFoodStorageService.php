@@ -7,8 +7,7 @@ use App\Collection\VegetableCollection;
 use App\Entity\FoodItem;
 use App\Entity\Fruit;
 use App\Entity\Vegetable;
-use App\Service\JsonStorageInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Exception\CustomHttpException;
 
 class JsonFoodStorageService implements JsonStorageInterface
 {
@@ -23,7 +22,7 @@ class JsonFoodStorageService implements JsonStorageInterface
         $data = json_decode($jsonData);
 
         if (json_last_error() !== JSON_ERROR_NONE || empty($data)) {
-            throw new \InvalidArgumentException("Invalid JSON data");
+            throw new CustomHttpException("Invalid JSON data");
         }
 
         if(!is_array($data)) { $data = [$data]; }
@@ -36,9 +35,9 @@ class JsonFoodStorageService implements JsonStorageInterface
             }
             if($entity instanceof FoodItem){
                 if(!is_float($item->quantity) && !is_int($item->quantity))
-                    throw new \InvalidArgumentException("The value must be a number.");
+                    throw new CustomHttpException("The value must be a number.");
                 if(!is_string($item->name) || empty($item->name))
-                    throw new \InvalidArgumentException("The value must be filled and type of string.");
+                    throw new CustomHttpException("The value must be filled and type of string.");
                 $quantity = $this->convertToGrams($item->quantity, $item->unit);
                 $entity->setQuantity($quantity);
                 $entity->setName($item->name);
@@ -48,7 +47,7 @@ class JsonFoodStorageService implements JsonStorageInterface
                     $this->vegetableCollection->add($entity);
                 }
             }else{
-                throw new \InvalidArgumentException("Invalid Type of item");
+                throw new CustomHttpException("Invalid Type of item");
             }
         }
 
@@ -59,7 +58,7 @@ class JsonFoodStorageService implements JsonStorageInterface
         return match ($unit) {
             'g' => $weight,
             'kg' => ($weight * 1000),
-            default => throw new \InvalidArgumentException('Unsupported unit: ' . $unit),
+            default => throw new CustomHttpException('Unsupported unit: ' . $unit),
         };
     }
 }
