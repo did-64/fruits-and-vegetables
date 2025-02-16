@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Collection\FruitCollection;
-use App\Collection\VegetableCollection;
-use App\Exception\CustomHttpException;
+use App\Collection\FoodCollectionManagerInterface;
 use App\Service\StorageService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,11 +14,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiFoodController extends AbstractController
 {
-
     public function __construct(
         private StorageService $storageService,
-        private FruitCollection $fruitCollection,
-        private VegetableCollection $vegetableCollection
+        private FoodCollectionManagerInterface $foodCollectionManager
     ) {}
 
     #[Route('/api/process-json', name: 'api_process_json', methods: ['GET'])]
@@ -30,7 +26,6 @@ class ApiFoodController extends AbstractController
         $jsonRequest = file_get_contents($jsonPath);
         $this->storageService->setRequest($jsonRequest);
         $this->storageService->submitRequest();
-
         return new JsonResponse([
             'success' => true
         ], Response::HTTP_CREATED);
@@ -39,17 +34,9 @@ class ApiFoodController extends AbstractController
     #[Route('/api/list/{type}', name: 'api_get_items', methods: ['GET'])]
     public function getItems(string $type, Request $request, SerializerInterface $serializer): JsonResponse
     {
-        $filter = $request->query->get('filter') ?: null;
-        $list =  match ($type) {
-            'fruit' => $this->fruitCollection->list($filter),
-            'vegetable' => $this->vegetableCollection->list($filter),
-            default => null,
-        };
-        if($list === null) {
-            throw new CustomHttpException("Invalid Type of item");
-        }
+        $query = $request->query->get('filter') ?: null;
+        $list = $this->foodCollectionManager->listFood($type, $query);
         $jsonlist = $serializer->serialize($list, 'json');
-
         return new JsonResponse(
             $jsonlist
         , Response::HTTP_OK, [],true);
@@ -62,7 +49,6 @@ class ApiFoodController extends AbstractController
         $content = $request->getContent();
         $this->storageService->setRequest($content);
         $this->storageService->submitRequest();
-
         return new JsonResponse([
             'success' => true
         ], Response::HTTP_CREATED);
@@ -71,17 +57,9 @@ class ApiFoodController extends AbstractController
     #[Route('/api/remove/{type}/{id}', name: 'api_remove_item', methods: ['DELETE'])]
     public function removeItem(int $id, string $type): JsonResponse
     {
-        if (!in_array($type, ['fruit', 'vegetable'])) {
-            throw new CustomHttpException("Invalid Type of item");
-        }
-        match ($type) {
-            'fruit' => $this->fruitCollection->remove($id),
-            'vegetable' => $this->vegetableCollection->remove($id),
-            default => null,
-        };
-
+        $success = $this->foodCollectionManager->removeFood($type, $id);
         return new JsonResponse([
-            'success' => true
+            'success' => $success
         ], Response::HTTP_NO_CONTENT);
     }
 }
