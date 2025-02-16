@@ -21,18 +21,18 @@ class VegetableCollection implements FoodCollectionInterface
         if (!$item instanceof Vegetable) {
             throw new CustomHttpException('Item must be a Vegetable');
         }
-
         $this->entityManager->persist($item);
         $this->entityManager->flush();
     }
 
-    public function remove(int $id): void
+    public function remove(int $id): bool
     {
         $vegetable = $this->vegetableRepository->find($id);
         if ($vegetable) {
             $this->entityManager->remove($vegetable);
             $this->entityManager->flush();
         }
+        return $vegetable instanceof Vegetable;
     }
 
     public function list(?string $query): array
@@ -45,7 +45,6 @@ class VegetableCollection implements FoodCollectionInterface
             ->setParameter('query', '%' . $query . '%')
             ->getQuery()
             ->getResult();
-
     }
 
 

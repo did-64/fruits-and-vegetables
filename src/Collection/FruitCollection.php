@@ -20,18 +20,18 @@ class FruitCollection implements FoodCollectionInterface
         if (!$item instanceof Fruit) {
             throw new CustomHttpException('Item must be a Fruit');
         }
-
         $this->entityManager->persist($item);
         $this->entityManager->flush();
     }
 
-    public function remove(int $id): void
+    public function remove(int $id): bool
     {
         $fruit = $this->fruitRepository->find($id);
         if ($fruit) {
             $this->entityManager->remove($fruit);
             $this->entityManager->flush();
         }
+        return $fruit instanceof Fruit;
     }
 
     public function list(?string $query): array
@@ -46,5 +46,4 @@ class FruitCollection implements FoodCollectionInterface
                 ->getResult();
         }
     }
-
 }
