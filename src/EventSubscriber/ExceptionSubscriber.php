@@ -13,16 +13,11 @@ class ExceptionSubscriber implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-
         $exception = $event->getThrowable();
-
         if($exception instanceof CustomHttpException) {
-
             $status = $exception->getStatusCode();
             $message = $exception->getMessage();
-
         } elseif ($exception instanceof HttpException) {
-
             $status = $exception->getStatusCode();
             $message = match ($exception->getStatusCode()) {
                 400 => 'Bad Request',
@@ -35,19 +30,14 @@ class ExceptionSubscriber implements EventSubscriberInterface
                 409 => 'Conflict',
                 default => 'Unexpected Error'
             };
-
         } else {
-
             $status= 500;
             $message = "An error occurred while processing your request.";
-
         }
-
         $data = [
             'status' => $status,
             'message' => $message,
         ];
-
         $event->setResponse(new JsonResponse($data));
     }
 

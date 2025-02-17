@@ -23,9 +23,8 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
             'vegetable' => $this->vegetableCollection->list($query),
             default => null,
         };
-        if($list === null) {
+        if($list === null)
             throw new CustomHttpException("Invalid Type of item");
-        }
         return $list;
     }
 

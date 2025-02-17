@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Collection;
+
 use stdClass;
 
 interface FoodCollectionManagerInterface
