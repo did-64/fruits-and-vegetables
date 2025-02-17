@@ -2,63 +2,24 @@
 
 namespace App\Service;
 
-use App\Collection\FruitCollection;
-use App\Collection\VegetableCollection;
-use App\Entity\FoodItem;
-use App\Entity\Fruit;
-use App\Entity\Vegetable;
+use App\Collection\FoodCollectionManagerInterface;
 use App\Exception\CustomHttpException;
 
 class JsonFoodStorageService implements JsonStorageInterface
 {
-
-
-    public function __construct(private FruitCollection $fruitCollection, private VegetableCollection $vegetableCollection)
+    public function __construct(private FoodCollectionManagerInterface $foodCollectionManager)
     {
     }
 
     public function loadData(string $jsonData): void
     {
         $data = json_decode($jsonData);
-
         if (json_last_error() !== JSON_ERROR_NONE || empty($data)) {
             throw new CustomHttpException("Invalid JSON data");
         }
-
-        if(!is_array($data)) { $data = [$data]; }
+        if(!is_array($data)) { $data = [$data]; }// it could be one entity to insert or many, if it's one, put it in an array to iterate on
         foreach ($data as $item) {
-            $entity = null;
-            if($item->type === "fruit"){
-                $entity = new Fruit();
-            }elseif ($item->type === "vegetable"){
-                $entity = new Vegetable();
-            }
-            if($entity instanceof FoodItem){
-                if(!is_float($item->quantity) && !is_int($item->quantity))
-                    throw new CustomHttpException("The value must be a number.");
-                if(!is_string($item->name) || empty($item->name))
-                    throw new CustomHttpException("The value must be filled and type of string.");
-                $quantity = $this->convertToGrams($item->quantity, $item->unit);
-                $entity->setQuantity($quantity);
-                $entity->setName($item->name);
-                if ($entity instanceof Fruit) {
-                    $this->fruitCollection->add($entity);
-                } else {
-                    $this->vegetableCollection->add($entity);
-                }
-            }else{
-                throw new CustomHttpException("Invalid Type of item");
-            }
+            $this->foodCollectionManager->addFood($item);
         }
-
-    }
-
-    private function convertToGrams(float $weight, string $unit): float
-    {
-        return match ($unit) {
-            'g' => $weight,
-            'kg' => ($weight * 1000),
-            default => throw new CustomHttpException('Unsupported unit: ' . $unit),
-        };
     }
 }
