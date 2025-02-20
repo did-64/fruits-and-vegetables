@@ -30,8 +30,7 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
 
     public function addFood(stdClass $foodItem): void
     {
-        $entityName = ucfirst($foodItem->name);
-        $entity = new $entityName();
+        $entity = EnumFoodItem::getInstanceIfExists($foodItem->type);
         if($entity instanceof FoodItem){
             if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
                 throw new CustomHttpException("The value must be a number.");
