@@ -16,7 +16,7 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
         private VegetableCollection $vegetableCollection
     ) {}
 
-    private function getCollectionInstanceIfExists(string $itemType): FoodCollectionInterface
+    private function getEntityCollection(string $itemType): FoodCollectionInterface
     {
         return match ($itemType) {
             'fruit' => $this->fruitCollection,
@@ -27,13 +27,13 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
 
     public function listFood(string $itemType, ?string $query): array
     {
-        $collection = $this->getCollectionInstanceIfExists($itemType);
+        $collection = $this->getEntityCollection($itemType);
         return $collection->list($query);
     }
 
     public function addFood(stdClass $foodItem): void
     {
-        $entity = EnumFoodItem::getInstanceIfExists($foodItem->type);
+        $entity = EnumFoodItem::getInstanceFoodItem($foodItem->type);
         if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
             throw new CustomHttpException("The value must be a number.");
         if(!is_string($foodItem->name) || empty($foodItem->name))
@@ -41,13 +41,13 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
         $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
         $entity->setQuantity($quantity);
         $entity->setName($foodItem->name);
-        $collection = $this->getCollectionInstanceIfExists($foodItem->type);
+        $collection = $this->getEntityCollection($foodItem->type);
         $collection->add($entity);
     }
 
     public function removeFood(string $itemType, int $id): bool
     {
-        $collection = $this->getCollectionInstanceIfExists($itemType);
+        $collection = $this->getEntityCollection($itemType);
         $removeItem = $collection->remove($id);
         if ($removeItem === false)
             throw new CustomHttpException("No item found");

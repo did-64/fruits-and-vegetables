@@ -20,7 +20,7 @@ enum EnumFoodItem: string
         };
     }
 
-    public static function getInstanceIfExists(string $value): FoodItem
+    public static function getInstanceFoodItem(string $value): FoodItem
     {
         $case = self::tryFrom($value);
         if ($case === null)
