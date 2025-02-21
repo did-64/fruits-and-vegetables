@@ -2,8 +2,10 @@
 
 namespace App\Collection;
 
+use App\Entity\FoodItem;
 use App\Entity\Fruit;
 use App\Entity\Vegetable;
+use App\Exception\CustomHttpException;
 
 enum EnumFoodItem: string
 {
@@ -18,9 +20,11 @@ enum EnumFoodItem: string
         };
     }
 
-    public static function getInstanceIfExists(string $value): ?object
+    public static function getInstanceIfExists(string $value): FoodItem
     {
         $case = self::tryFrom($value);
-        return $case?->getInstance();
+        if ($case === null)
+            throw new CustomHttpException("Invalid Type of Item");
+        return $case->getInstance();
     }
 }
