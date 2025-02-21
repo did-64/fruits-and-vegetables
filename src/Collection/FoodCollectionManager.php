@@ -16,50 +16,42 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
         private VegetableCollection $vegetableCollection
     ) {}
 
+    private function getCollectionInstanceIfExists(string $itemType): FoodCollectionInterface
+    {
+        return match ($itemType) {
+            'fruit' => $this->fruitCollection,
+            'vegetable' => $this->vegetableCollection,
+            default => throw new CustomHttpException("Invalid Type of item")
+        };
+    }
+
     public function listFood(string $itemType, ?string $query): array
     {
-        $list =  match ($itemType) {
-            'fruit' => $this->fruitCollection->list($query),
-            'vegetable' => $this->vegetableCollection->list($query),
-            default => null,
-        };
-        if($list === null)
-            throw new CustomHttpException("Invalid Type of item");
-        return $list;
+        $collection = $this->getCollectionInstanceIfExists($itemType);
+        return $collection->list($query);
     }
 
     public function addFood(stdClass $foodItem): void
     {
         $entity = EnumFoodItem::getInstanceIfExists($foodItem->type);
-        if($entity instanceof FoodItem){
-            if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
-                throw new CustomHttpException("The value must be a number.");
-            if(!is_string($foodItem->name) || empty($foodItem->name))
-                throw new CustomHttpException("The value must be filled and type of string.");
-            $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
-            $entity->setQuantity($quantity);
-            $entity->setName($foodItem->name);
-            if ($entity instanceof Fruit)
-                $this->fruitCollection->add($entity);
-            else if($entity instanceof Vegetable)
-                $this->vegetableCollection->add($entity);
-            else
-                throw new CustomHttpException("This food item doesn't exist.");
-        }else{
-            throw new CustomHttpException("Invalid Type of item");
-        }
+        if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
+            throw new CustomHttpException("The value must be a number.");
+        if(!is_string($foodItem->name) || empty($foodItem->name))
+            throw new CustomHttpException("The value must be filled and type of string.");
+        $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
+        $entity->setQuantity($quantity);
+        $entity->setName($foodItem->name);
+        $collection = $this->getCollectionInstanceIfExists($foodItem->type);
+        $collection->add($entity);
     }
 
     public function removeFood(string $itemType, int $id): bool
     {
-        $removeItem = match ($itemType) {
-            'fruit' => $this->fruitCollection->remove($id),
-            'vegetable' => $this->vegetableCollection->remove($id),
-            default => throw new CustomHttpException("Invalid Type of item")
-        };
+        $collection = $this->getCollectionInstanceIfExists($itemType);
+        $removeItem = $collection->remove($id);
         if ($removeItem === false)
             throw new CustomHttpException("No item found");
-        return $removeItem;
+        return true;
     }
 
     private function convertToGrams(float $weight, string $unit): float
