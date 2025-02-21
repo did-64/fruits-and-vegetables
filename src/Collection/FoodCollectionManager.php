@@ -35,9 +35,9 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
     {
         $entity = EnumFoodItem::getInstanceFoodItem($foodItem->type);
         if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
-            throw new CustomHttpException("The value must be a number.");
+            throw new CustomHttpException("The value must be a number");
         if(!is_string($foodItem->name) || empty($foodItem->name))
-            throw new CustomHttpException("The value must be filled and type of string.");
+            throw new CustomHttpException("The value must be filled and type of string");
         $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
         $entity->setQuantity($quantity);
         $entity->setName($foodItem->name);
