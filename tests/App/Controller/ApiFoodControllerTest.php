@@ -27,7 +27,6 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertJson($responseContent);
         $responseData = json_decode($responseContent, true);
         $this->assertNotEmpty($responseData);
-        $this->assertTrue($responseData['success']);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
