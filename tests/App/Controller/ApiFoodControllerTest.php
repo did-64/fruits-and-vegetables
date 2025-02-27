@@ -25,8 +25,9 @@ class ApiFoodControllerTest extends WebTestCase
         $client->request('GET', '/api/list/fruit');
         $responseContent = $client->getResponse()->getContent();
         $this->assertJson($responseContent);
-        $data = json_decode($responseContent, true);
-        $this->assertNotEmpty($data);
+        $responseData = json_decode($responseContent, true);
+        $this->assertNotEmpty($responseData);
+        $this->assertTrue($responseData['success']);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
@@ -41,8 +42,9 @@ class ApiFoodControllerTest extends WebTestCase
         ]);
         $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
         $responseContent = $client->getResponse()->getContent();
-        $data = json_decode($responseContent, true);
-        $this->assertTrue($data['success']);
+        $this->assertJson($responseContent);
+        $responseData = json_decode($responseContent, true);
+        $this->assertTrue($responseData['success']);
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
