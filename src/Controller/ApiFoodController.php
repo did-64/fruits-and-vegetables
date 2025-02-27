@@ -55,11 +55,11 @@ class ApiFoodController extends AbstractController
     }
 
     #[Route('/api/remove/{type}/{id}', name: 'api_remove_item', methods: ['DELETE'])]
-    public function removeItem(int $id, string $type): JsonResponse
+    public function removeItem(int $id, string $type): Response
     {
-        $success = $this->foodCollectionManager->removeFood($type, $id);
-        return new JsonResponse([
-            'success' => $success
-        ], Response::HTTP_NO_CONTENT);
+        $this->foodCollectionManager->removeFood($type, $id);
+        return new Response(
+            null,
+            Response::HTTP_NO_CONTENT);
     }
 }

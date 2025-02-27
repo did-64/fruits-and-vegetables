@@ -45,13 +45,12 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
         $collection->add($entity);
     }
 
-    public function removeFood(string $itemType, int $id): bool
+    public function removeFood(string $itemType, int $id): void
     {
         $collection = $this->getEntityCollection($itemType);
         $removeItem = $collection->remove($id);
         if ($removeItem === false)
             throw new CustomHttpException("No item found");
-        return true;
     }
 
     private function convertToGrams(float $weight, string $unit): float
