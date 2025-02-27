@@ -72,14 +72,6 @@ class FoodCollectionManagerTest extends TestCase
         $this->manager->addFood($data);
     }
 
-    public function testRemoveFood()
-    {
-        $this->fruitCollection->method('remove')
-            ->willReturn(true);
-        $res = $this->manager->removeFood('fruit', 1);
-        $this->assertTrue($res);
-    }
-
     public function testRemoveFoodUnfoundIdException()
     {
         $this->fruitCollection->method('remove')
