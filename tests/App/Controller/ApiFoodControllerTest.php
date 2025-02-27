@@ -30,6 +30,13 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
+    public function testGetNonExistentEntity(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/list/cereal');
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
     public function testAddItems()
     {
         $client = static::createClient();
@@ -47,6 +54,32 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
+    public function testAddNonExistentEntity()
+    {
+        $client = static::createClient();
+        $json = json_encode([
+            'name' => 'Grapefuit',
+            'type' => 'beverage',
+            'unit'=> 'kg',
+            'quantity' => 10
+        ]);
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testAddNonExistentUnit()
+    {
+        $client = static::createClient();
+        $json = json_encode([
+            'name' => 'Grapefuit',
+            'type' => 'fruit',
+            'unit'=> 'cm',
+            'quantity' => 10
+        ]);
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
     public function testRemoveItem()
     {
         $client = static::createClient();
@@ -56,5 +89,21 @@ class ApiFoodControllerTest extends WebTestCase
         $idToRemove = $vegetable->getId();
         $client->request('DELETE', '/api/remove/vegetable/'.$idToRemove);
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
+
+    public function testRemoveNonExistentItem()
+    {
+        $client = static::createClient();
+        $nonExistentId = 99999;
+        $client->request('DELETE', '/api/remove/vegetable/'.$nonExistentId);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testRemoveNonExistentEntity()
+    {
+        $client = static::createClient();
+        $id = 1;
+        $client->request('DELETE', '/api/remove/cereal/'.$id);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 }
