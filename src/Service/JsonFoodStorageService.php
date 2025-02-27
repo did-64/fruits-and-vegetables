@@ -17,7 +17,9 @@ class JsonFoodStorageService implements JsonStorageInterface
         if (json_last_error() !== JSON_ERROR_NONE || empty($data)) {
             throw new CustomHttpException("Invalid JSON data");
         }
+
         if(!is_array($data)) { $data = [$data]; }// it could be one entity to insert or many, if it's one, put it in an array to iterate on
+
         foreach ($data as $item) {
             $this->foodCollectionManager->addFood($item);
         }

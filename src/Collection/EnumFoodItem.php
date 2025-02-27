@@ -25,6 +25,7 @@ enum EnumFoodItem: string
         $case = self::tryFrom($value);
         if ($case === null)
             throw new CustomHttpException("Invalid Type of Item");
+
         return $case->getInstance();
     }
 }

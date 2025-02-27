@@ -17,9 +17,9 @@ class FruitCollection implements FoodCollectionInterface
 
     public function add(FoodItem $item): void
     {
-        if (!$item instanceof Fruit) {
+        if (!$item instanceof Fruit)
             throw new CustomHttpException('Item must be a Fruit');
-        }
+
         $this->entityManager->persist($item);
         $this->entityManager->flush();
     }
@@ -31,6 +31,7 @@ class FruitCollection implements FoodCollectionInterface
             $this->entityManager->remove($fruit);
             $this->entityManager->flush();
         }
+
         return $fruit instanceof Fruit;
     }
 
