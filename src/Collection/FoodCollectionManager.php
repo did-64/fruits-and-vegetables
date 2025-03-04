@@ -2,24 +2,45 @@
 
 namespace App\Collection;
 
+use App\Entity\FoodItem;
 use App\Exception\CustomHttpException;
-use stdClass;
+use ReflectionClass;
 
 class FoodCollectionManager implements FoodCollectionManagerInterface
 {
+
+    /** @var FoodItem[] $collection */
+    private array $foodItemsCollection = [];
 
     public function __construct(
         private FruitCollection $fruitCollection,
         private VegetableCollection $vegetableCollection
     ) {}
 
-    private function getEntityCollection(string $itemType): FoodCollectionInterface
+    protected function getEntityCollection(string $itemType): FoodCollectionInterface
     {
-        return match ($itemType) {
+        return match (strtolower($itemType)) {
             'fruit' => $this->fruitCollection,
             'vegetable' => $this->vegetableCollection,
             default => throw new CustomHttpException("Invalid Type of item")
         };
+    }
+
+    public function hydrateCollection(array $data): void
+    {
+        foreach ($data as $foodItem) {
+            $entity = EnumFoodItem::getInstanceFoodItem($foodItem->type);
+            if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
+                throw new CustomHttpException("The value must be a number");
+
+            if(!is_string($foodItem->name) || empty($foodItem->name))
+                throw new CustomHttpException("The value must be filled and type of string");
+
+            $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
+            $entity->setQuantity($quantity);
+            $entity->setName($foodItem->name);
+            $this->foodItemsCollection[] = $entity;
+        }
     }
 
     public function listFood(string $itemType, ?string $query): array
@@ -28,20 +49,18 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
         return $collection->list($query);
     }
 
-    public function addFood(stdClass $foodItem): void
+    public function addCollection(): void
     {
-        $entity = EnumFoodItem::getInstanceFoodItem($foodItem->type);
-        if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
-            throw new CustomHttpException("The value must be a number");
+        foreach ($this->foodItemsCollection as $foodItem) {
+            $this->addFood($foodItem);
+        }
+    }
 
-        if(!is_string($foodItem->name) || empty($foodItem->name))
-            throw new CustomHttpException("The value must be filled and type of string");
-
-        $quantity = $this->convertToGrams($foodItem->quantity, $foodItem->unit);
-        $entity->setQuantity($quantity);
-        $entity->setName($foodItem->name);
-        $collection = $this->getEntityCollection($foodItem->type);
-        $collection->add($entity);
+    protected function addFood(FoodItem $foodItem): void
+    {
+        $reflect = new ReflectionClass($foodItem);
+        $collection = $this->getEntityCollection($reflect->getShortName());
+        $collection->add($foodItem);
     }
 
     public function removeFood(string $itemType, int $id): void
