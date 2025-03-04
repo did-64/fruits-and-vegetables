@@ -6,10 +6,12 @@ use App\Collection\FoodCollectionManager;
 use App\Collection\FoodCollectionManagerInterface;
 use App\Collection\FruitCollection;
 use App\Collection\VegetableCollection;
+use App\Entity\Fruit;
 use App\Exception\CustomHttpException;
 use App\Repository\FruitRepository;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class FoodCollectionManagerTest extends TestCase
 {
@@ -51,25 +53,41 @@ class FoodCollectionManagerTest extends TestCase
         $this->manager->listFood('foo', null);
     }
 
-    public function testAddFoodQuantityException(){
+    public function testHydrateCollection(){
+        $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => 20, 'unit' => 'kg'];
+        $data = [$data];
+        $this->manager->hydrateCollection($data);
+
+        $reflection = new ReflectionClass($this->manager);
+        $property = $reflection->getProperty('foodItemsCollection');
+        $foodItemCollection = $property->getValue($this->manager);
+
+        $this->assertIsArray($foodItemCollection);
+        $this->assertContainsOnlyInstancesOf(Fruit::class, $foodItemCollection);
+    }
+
+    public function testHydrateCollectionQuantityException(){
         $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => '20', 'unit' => 'kg'];
+        $data = [$data];
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("The value must be a number");
-        $this->manager->addFood($data);
+        $this->manager->hydrateCollection($data);
     }
 
-    public function testAddFoodUnitException(){
+    public function testHydrateCollectionUnitException(){
         $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => 20, 'unit' => 'bar'];
+        $data = [$data];
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("Unsupported unit: bar");
-        $this->manager->addFood($data);
+        $this->manager->hydrateCollection($data);
     }
 
-    public function testAddFoodNameException(){
+    public function testHydrateCollectionNameException(){
         $data = (object)['type' => 'fruit', 'name' => '', 'quantity' => 20, 'unit' => 'kg'];
+        $data = [$data];
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("The value must be filled and type of string");
-        $this->manager->addFood($data);
+        $this->manager->hydrateCollection($data);
     }
 
     public function testRemoveFoodUnfoundIdException()
