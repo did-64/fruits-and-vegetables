@@ -1,59 +1,137 @@
-# 🍎🥕 Fruits and Vegetables
+# 🍎🥕 Symfony Fruits & Vegetables API
 
-## 🎯 Goal
-We want to build a service which will take a `request.json` and:
-* Process the file and create two separate collections for `Fruits` and `Vegetables`
-* Each collection has methods like `add()`, `remove()`, `list()`;
-* Units have to be stored as grams;
-* Store the collections in a storage engine of your choice. (e.g. Database, In-memory)
-* Provide an API endpoint to query the collections. As a bonus, this endpoint can accept filters to be applied to the returning collection.
-* Provide another API endpoint to add new items to the collections (i.e., your storage engine).
-* As a bonus you might:
-  * consider giving option to decide which units are returned (kilograms/grams);
-  * how to implement `search()` method collections;
-  * use latest version of Symfony's to embbed your logic 
+## Overview
+This is a Symfony-based REST API that allows users to manage a list of fruits and vegetables. The API supports the following operations:
+- List all fruits and vegetables
+- Add a new fruit or vegetable
+- Delete an existing fruit or vegetable
 
-### ✔️ How can I check if my code is working?
-You have two ways of moving on:
-* You call the Service from PHPUnit test like it's done in dummy test (just run `bin/phpunit` from the console)
+## Requirements
+- PHP 8.0 or higher
+- Composer
+- Symfony CLI
+- MariaDB or MySQL database
 
-or
+## Installation
 
-* You create a Controller which will be calling the service with a json payload
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/did-64/fruits-and-vegetables.git
+   cd fruits-and-vegetables
+   ```
 
-## 💡 Hints before you start working on it
-* Keep KISS, DRY, YAGNI, SOLID principles in mind
-* Timebox your work - we expect that you would spend between 3 and 4 hours.
-* Your code should be tested
+2. Install dependencies:
+   ```sh
+   composer install
+   ```
 
-## When you are finished
-* Please upload your code to a public git repository (i.e. GitHub, Gitlab)
+3. Configure environment variables:
+   Copy the `.env` file and update the database configuration:
+   ```sh
+   cp .env .env.local
+   ```
+   Update the `DATABASE_URL` in `.env.local`:
+   ```
+   DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name"
+   ```
 
-## 🐳 Docker image
-Optional. Just here if you want to run it isolated.
+4. Set up the database:
+   ```sh
+   symfony console doctrine:database:create
+   symfony console doctrine:migrations:migrate
+   ```
 
-### 📥 Pulling image
-```bash
-docker pull tturkowski/fruits-and-vegetables
+5. Run the Symfony server:
+   ```sh
+   symfony server:start
+   ```
+
+## API Endpoints
+
+### Populate database
+_process the request.json file at root and populate database_
+```http
+GET /api/process-json
+```
+#### Response
+Status Code: 201 Created
+```json
+{
+  "success": true
+}
 ```
 
-### 🧱 Building image
-```bash
-docker build -t tturkowski/fruits-and-vegetables -f docker/Dockerfile .
+### Get all fruits and vegetables
+```http
+GET /api/list/{type}
+(e.g., /api/list/fruit)
+The quantity field is expressed in grams.
+```
+#### Response
+Status Code: 200 OK
+```json
+[
+  { "id": 1, "name": "Apple", "quantity": 2000 },
+  { "id": 2, "name": "Peach", "quantity": 3000 }
+]
 ```
 
-### 🏃‍♂️ Running container
-```bash
-docker run -it -w/app -v$(pwd):/app tturkowski/fruits-and-vegetables sh 
+### Add a new fruit or vegetable
+```http
+POST /api/create
+The request body can be either a single object or an array of objects.
+The unit field must be either "g" (grams) or "kg" (kilograms).
+The quantity field should match the unit (e.g., 500 g or 2 kg)
+```
+#### Request Body (Single Item)
+```json
+  {
+    "name": "Grape",
+    "type": "fruit",
+    "quantity": 20,
+    "unit": "kg"
+  }
+```
+#### Request Body (Multiple Items)
+```json
+[
+  {
+    "name": "Banana",
+    "type": "fruit",
+    "quantity": 1000,
+    "unit": "g"
+  },
+  {
+    "name": "Bean",
+    "type": "vegetable",
+    "quantity": 24,
+    "unit": "kg"
+  }
+]
+```
+#### Response
+Status Code: 201 Created
+```json
+{
+  "success": true
+}
 ```
 
-### 🛂 Running tests
-```bash
-docker run -it -w/app -v$(pwd):/app tturkowski/fruits-and-vegetables bin/phpunit
+### Delete a fruit or vegetable
+```http
+DELETE /api/remove/{type}/{id}
+(e.g., /api/remove/vegetable/2)
+```
+#### Response
+Status Code: 204 No Content
+```text
+(No response body)
 ```
 
-### ⌨️ Run development server
-```bash
-docker run -it -w/app -v$(pwd):/app -p8080:8080 tturkowski/fruits-and-vegetables php -S 0.0.0.0:8080 -t /app/public
-# Open http://127.0.0.1:8080 in your browser
+## Testing
+Run the test suite:
+```sh
+php bin/phpunit
 ```
+
+
