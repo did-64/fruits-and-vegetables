@@ -7,7 +7,7 @@ This is a Symfony-based REST API that allows users to manage a list of fruits an
 - Delete an existing fruit or vegetable
 
 ## Requirements
-- PHP 8.0 or higher
+- PHP 8.1 or higher
 - Composer
 - Symfony CLI
 - MariaDB or MySQL database
