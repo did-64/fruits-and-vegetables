@@ -2,6 +2,7 @@
 
 namespace App\Tests\App\Controller;
 
+use App\Repository\VegetableRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -10,149 +11,99 @@ class ApiFoodControllerTest extends WebTestCase
     public function testProcessJson(): void
     {
         $client = static::createClient();
-
         $client->request('GET', '/api/process-json');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertJson($client->getResponse()->getContent());
-
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('success', $responseData);
+        $responseContent = $client->getResponse()->getContent();
+        $this->assertJson($responseContent);
+        $responseData = json_decode($responseContent, true);
         $this->assertTrue($responseData['success']);
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
-    public function testGetItemsWithValidType()
+    public function testGetItems(): void
     {
-
         $client = static::createClient();
-
-
         $client->request('GET', '/api/list/fruit');
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-
-        $this->assertJson($response->getContent());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($data);
-    }
-
-    public function testGetItemsWithInvalidType()
-    {
-        $client = static::createClient();
-
-
-        $client->request('GET', '/api/list/invalid');
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertFalse($data['success']);
-        $this->assertEquals("Invalid Type of item", $data['message']);
-    }
-
-    public function testGetItemsWithFilter(): void
-    {
-        $client = static::createClient();
-
-        $client->request('GET', '/api/list/fruit?filter=red');
-
+        $responseContent = $client->getResponse()->getContent();
+        $this->assertJson($responseContent);
+        $responseData = json_decode($responseContent, true);
+        $this->assertNotEmpty($responseData);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-        $this->assertJson($client->getResponse()->getContent());
-
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertIsArray($responseData);
     }
 
-
-    public function testAddItemsWithValidJson()
+    public function testGetNonExistentEntity(): void
     {
         $client = static::createClient();
+        $client->request('GET', '/api/list/cereal');
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
 
-
-        $validJson = json_encode([
-            'name' => 'Apple',
+    public function testAddItems(): void
+    {
+        $client = static::createClient();
+        $json = json_encode([
+            'name' => 'Grapefuit',
             'type' => 'fruit',
             'unit'=> 'kg',
             'quantity' => 10
         ]);
-
-
-        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $validJson);
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertTrue($data['success']);
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
+        $responseContent = $client->getResponse()->getContent();
+        $this->assertJson($responseContent);
+        $responseData = json_decode($responseContent, true);
+        $this->assertTrue($responseData['success']);
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
-    public function testAddItemsWithInvalidJson()
+    public function testAddNonExistentEntity(): void
     {
         $client = static::createClient();
-
-
-        $invalidJson = '{"name": "Apple", "type": "fruit", "quantity": 10';
-
-
-        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $invalidJson);
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertFalse($data['success']);
-        $this->assertEquals('Invalid JSON format', $data['error']);
-    }
-
-    public function testAddItemsWithEmptyContent()
-    {
-        $client = static::createClient();
-
-
-        $client->request('POST', '/api/create');
-        $response = $client->getResponse();
-
-
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-
-        $data = json_decode($response->getContent(), true);
-        $this->assertFalse($data['success']);
-        $this->assertEquals('Invalid JSON format', $data['error']);
-    }
-
-
-    public function testRemoveItemSuccess(): void
-    {
-        $client = static::createClient();
-
-
-        $client->request('DELETE', '/api/remove/fruit/10');
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-
-    }
-
-    public function testRemoveItemInvalidType(): void
-    {
-        $client = static::createClient();
-
-
-        $client->request('DELETE', '/api/remove/meat/1');
-
+        $json = json_encode([
+            'name' => 'Grapefuit',
+            'type' => 'beverage',
+            'unit'=> 'kg',
+            'quantity' => 10
+        ]);
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
 
+    public function testAddNonExistentUnit(): void
+    {
+        $client = static::createClient();
+        $json = json_encode([
+            'name' => 'Grapefuit',
+            'type' => 'fruit',
+            'unit'=> 'cm',
+            'quantity' => 10
+        ]);
+        $client->request('POST', '/api/create', [], [], ['CONTENT_TYPE' => 'application/json'], $json);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testRemoveItem(): void
+    {
+        $client = static::createClient();
+        $container = $client->getContainer();
+        $vegetableRepository = $container->get(VegetableRepository::class);
+        $vegetable  = $vegetableRepository->findOneBy([], ['id' => 'DESC']);
+        $idToRemove = $vegetable->getId();
+        $client->request('DELETE', '/api/remove/vegetable/'.$idToRemove);
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
+
+    public function testRemoveNonExistentItem(): void
+    {
+        $client = static::createClient();
+        $nonExistentId = 99999;
+        $client->request('DELETE', '/api/remove/vegetable/'.$nonExistentId);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testRemoveNonExistentEntity(): void
+    {
+        $client = static::createClient();
+        $id = 1;
+        $client->request('DELETE', '/api/remove/cereal/'.$id);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 }

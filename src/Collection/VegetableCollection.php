@@ -2,9 +2,9 @@
 
 namespace App\Collection;
 
-use App\Collection\FoodCollectionInterface;
 use App\Entity\FoodItem;
 use App\Entity\Vegetable;
+use App\Exception\CustomHttpException;
 use App\Repository\VegetableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,21 +18,23 @@ class VegetableCollection implements FoodCollectionInterface
 
     public function add(FoodItem $item): void
     {
-        if (!$item instanceof Vegetable) {
-            throw new \InvalidArgumentException('Item must be a Vegetable');
-        }
+        if (!$item instanceof Vegetable)
+            throw new CustomHttpException('Item must be a Vegetable');
 
         $this->entityManager->persist($item);
         $this->entityManager->flush();
     }
 
-    public function remove(int $id): void
+    public function remove(int $id): bool
     {
         $vegetable = $this->vegetableRepository->find($id);
+
         if ($vegetable) {
             $this->entityManager->remove($vegetable);
             $this->entityManager->flush();
         }
+
+        return $vegetable instanceof Vegetable;
     }
 
     public function list(?string $query): array
@@ -45,7 +47,6 @@ class VegetableCollection implements FoodCollectionInterface
             ->setParameter('query', '%' . $query . '%')
             ->getQuery()
             ->getResult();
-
     }
 
 
