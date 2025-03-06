@@ -28,7 +28,8 @@ class FoodCollectionManagerTest extends TestCase
         );
     }
 
-    public function testListFood(){
+    public function testListFood(): void
+    {
         $returnList=  [[ 'id' => 1, 'name' => 'Apples', 'quantity' => 2000.00], [ 'id' => 2, 'name' => 'Pears', 'quantity' => 3500.00]];
         $this->fruitCollection->method('list')->willReturn($returnList);
         $result = $this->manager->listFood('fruit', null);
@@ -36,7 +37,8 @@ class FoodCollectionManagerTest extends TestCase
         $this->assertEquals($returnList, $result);
     }
 
-    public function testListFoodWithQueryParam(){
+    public function testListFoodWithQueryParam(): void
+    {
         $list = [[ 'id' => 1, 'name' => 'Apples', 'quantity' => 2000.00]];
         $this->fruitCollection->method('list')
             ->with('apple')
@@ -47,13 +49,15 @@ class FoodCollectionManagerTest extends TestCase
         $this->assertEquals($list, $result);
     }
 
-    public function testListFoodThrowsException(){
+    public function testListFoodThrowsException(): void
+    {
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("Invalid Type of item");
         $this->manager->listFood('foo', null);
     }
 
-    public function testHydrateCollection(){
+    public function testHydrateCollection(): void
+    {
         $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => 20, 'unit' => 'kg'];
         $data = [$data];
         $this->manager->hydrateCollection($data);
@@ -66,7 +70,8 @@ class FoodCollectionManagerTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Fruit::class, $foodItemCollection);
     }
 
-    public function testHydrateCollectionQuantityException(){
+    public function testHydrateCollectionQuantityException(): void
+    {
         $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => '20', 'unit' => 'kg'];
         $data = [$data];
         $this->expectException(CustomHttpException::class);
@@ -74,7 +79,7 @@ class FoodCollectionManagerTest extends TestCase
         $this->manager->hydrateCollection($data);
     }
 
-    public function testHydrateCollectionUnitException(){
+    public function testHydrateCollectionUnitException(): void{
         $data = (object)['type' => 'fruit', 'name' => 'Grapes', 'quantity' => 20, 'unit' => 'bar'];
         $data = [$data];
         $this->expectException(CustomHttpException::class);
@@ -82,7 +87,8 @@ class FoodCollectionManagerTest extends TestCase
         $this->manager->hydrateCollection($data);
     }
 
-    public function testHydrateCollectionNameException(){
+    public function testHydrateCollectionNameException(): void
+    {
         $data = (object)['type' => 'fruit', 'name' => '', 'quantity' => 20, 'unit' => 'kg'];
         $data = [$data];
         $this->expectException(CustomHttpException::class);
@@ -90,7 +96,7 @@ class FoodCollectionManagerTest extends TestCase
         $this->manager->hydrateCollection($data);
     }
 
-    public function testRemoveFoodUnfoundIdException()
+    public function testRemoveFoodUnfoundIdException(): void
     {
         $this->fruitCollection->method('remove')
             ->willReturn(false);

@@ -37,7 +37,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testAddItems()
+    public function testAddItems(): void
     {
         $client = static::createClient();
         $json = json_encode([
@@ -54,7 +54,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
-    public function testAddNonExistentEntity()
+    public function testAddNonExistentEntity(): void
     {
         $client = static::createClient();
         $json = json_encode([
@@ -67,7 +67,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testAddNonExistentUnit()
+    public function testAddNonExistentUnit(): void
     {
         $client = static::createClient();
         $json = json_encode([
@@ -80,7 +80,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testRemoveItem()
+    public function testRemoveItem(): void
     {
         $client = static::createClient();
         $container = $client->getContainer();
@@ -91,7 +91,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
 
-    public function testRemoveNonExistentItem()
+    public function testRemoveNonExistentItem(): void
     {
         $client = static::createClient();
         $nonExistentId = 99999;
@@ -99,7 +99,7 @@ class ApiFoodControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testRemoveNonExistentEntity()
+    public function testRemoveNonExistentEntity(): void
     {
         $client = static::createClient();
         $id = 1;

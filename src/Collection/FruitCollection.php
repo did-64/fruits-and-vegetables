@@ -27,6 +27,7 @@ class FruitCollection implements FoodCollectionInterface
     public function remove(int $id): bool
     {
         $fruit = $this->fruitRepository->find($id);
+
         if ($fruit) {
             $this->entityManager->remove($fruit);
             $this->entityManager->flush();

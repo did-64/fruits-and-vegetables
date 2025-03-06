@@ -21,7 +21,7 @@ class FruitCollectionTest extends TestCase
         $this->fruitCollection = new FruitCollection($entityManager, $this->fruitRepository);
     }
 
-    public function testAddException()
+    public function testAddException(): void
     {
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("Item must be a Fruit");
@@ -29,7 +29,7 @@ class FruitCollectionTest extends TestCase
         $this->fruitCollection->add($fruit);
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $fruit = new Fruit();
         $this->fruitRepository->expects($this->once())
@@ -39,7 +39,7 @@ class FruitCollectionTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testList()
+    public function testList(): void
     {
         $fruit1 = (new Fruit())->setName('apple')->setQuantity(3000);
         $fruit2 = (new Fruit())->setName('pineapple')->setQuantity(2000);

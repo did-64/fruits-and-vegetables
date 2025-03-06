@@ -26,6 +26,7 @@ class ApiFoodController extends AbstractController
         $jsonRequest = file_get_contents($jsonPath);
         $this->storageService->setRequest($jsonRequest);
         $this->storageService->submitRequest();
+
         return new JsonResponse([
             'success' => true
         ], Response::HTTP_CREATED);
@@ -37,6 +38,7 @@ class ApiFoodController extends AbstractController
         $query = $request->query->get('filter') ?: null;
         $list = $this->foodCollectionManager->listFood($type, $query);
         $jsonlist = $serializer->serialize($list, 'json');
+
         return new JsonResponse(
             $jsonlist
         , Response::HTTP_OK, [],true);
@@ -49,6 +51,7 @@ class ApiFoodController extends AbstractController
         $content = $request->getContent();
         $this->storageService->setRequest($content);
         $this->storageService->submitRequest();
+
         return new JsonResponse([
             'success' => true
         ], Response::HTTP_CREATED);
@@ -58,6 +61,7 @@ class ApiFoodController extends AbstractController
     public function removeItem(int $id, string $type): Response
     {
         $this->foodCollectionManager->removeFood($type, $id);
+
         return new Response(
             null,
             Response::HTTP_NO_CONTENT);

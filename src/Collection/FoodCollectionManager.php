@@ -30,6 +30,7 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
     {
         foreach ($data as $foodItem) {
             $entity = EnumFoodItem::getInstanceFoodItem($foodItem->type);
+
             if(!is_float($foodItem->quantity) && !is_int($foodItem->quantity))
                 throw new CustomHttpException("The value must be a number");
 
@@ -46,6 +47,7 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
     public function listFood(string $itemType, ?string $query): array
     {
         $collection = $this->getEntityCollection($itemType);
+
         return $collection->list($query);
     }
 
@@ -67,6 +69,7 @@ class FoodCollectionManager implements FoodCollectionManagerInterface
     {
         $collection = $this->getEntityCollection($itemType);
         $removeItem = $collection->remove($id);
+
         if ($removeItem === false)
             throw new CustomHttpException("No item found");
     }

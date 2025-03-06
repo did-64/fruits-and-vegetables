@@ -18,7 +18,8 @@ class JsonFoodStorageServiceTest extends TestCase
         $this->jsonFoodStorageService = new JsonFoodStorageService($manager);
     }
 
-    public function testLoadDataException(){
+    public function testLoadDataException(): void
+    {
         $data = '';
         $this->expectException(CustomHttpException::class);
         $this->expectExceptionMessage("Invalid JSON data");
